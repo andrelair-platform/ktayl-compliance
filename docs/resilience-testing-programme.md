@@ -42,23 +42,26 @@ authentik (SSO), the data layer (CNPG/Postgres)**, and the shared platform capab
 |---|---|---|---|
 | 2026-08-16 | Penetration test | whole cluster | 1 CRIT + 4 HIGH + MED/LOW — **all remediated/accepted (closed)** |
 | **2026-10-17** | **DR restore drill (Game Day #1, scenario 08)** | ktayl-iam / ktayl / retrieva CNPG | **FOUND broken** (`WAL ends before end of online backup`) → **FIXED** (backup + `pg_switch_wal`) → **RE-VERIFIED**: restore **iam 71s · ktayl 53s · retrieva 53s**, full table parity. Postmortem: `2026-10-17-cnpg-dr-restore-wal-gap.md` |
-| pending | Chaos Game Day (DB-down / NATS-down) | per catalog | capability live (Chaos Mesh), first run pending |
+| **2026-10-17** | **Chaos Game Days #2 & #3** (DB failover + NATS kill) | ktayl-cnpg / NATS | **PASS — no data loss.** CNPG failover promoted cnpg-2 (policies/premiums intact; app stayed up; ~2min graceful-delete failover — modest tuning note); NATS recovered 3/3, JetStream PVCs intact (stream-count unmeasured — CLI auth caveat). Postmortem: `2026-10-17-chaos-gameday-db-nats.md` |
 
-> Rows marked *pending* are **capability-live-not-yet-exercised** — deliberately NOT counted as passed.
+> All results-log rows are now **exercised** (no capability-only placeholders).
 
 ## 5. Findings → remediation → **re-test** loop — Art. 24
 Every finding gets: severity → owner → fix (PR) → **re-verify on the converged system** (not "fixed on
 paper"). Proven twice: the 2026-08 pentest (re-verified live 2026-10-16) and the DR drill
 (found→fixed→re-drilled, same day). The **re-test step is mandatory** — a remediation isn't closed until re-run.
 
-## 6. Independence + Advanced TLPT (Art. 26–27) — stated plainly, not dressed up
-- **Tester independence: ABSENT.** Tests are run by the solo operator. The CI gates (no single author can
-  bypass Trivy/checkov/CODEOWNERS/cosign) reduce single-author risk but **do not constitute independence**
-  in the DORA sense (organisationally separate testers). **Revisit trigger:** engage an external pentester
-  before any real-production / real-PII claim.
-- **TLPT (TIBER-EU red-team): OUT OF SCOPE BY CONSTRUCTION.** TLPT applies only to entities a competent
-  authority *designates significant*. ktayl is a simulated entity with **no competent authority to
-  designate it** — so TLPT is not applicable (not a proportionality exemption; simply no real regulator).
+## 6. Independence + Advanced TLPT (Art. 26–27) — formal determinations (closed, not open gaps)
+These two are **not fixable gaps** for a simulated solo-operated lab — they are closed as explicit,
+signed determinations (an accepted risk is a decision, not an omission):
+- **Tester independence — CLOSED as ACCEPTED RISK** (owner: SEC, approved: TL, 2026-10-17). Tests are run
+  by the solo operator; there are no organisationally-independent testers to create. Compensating controls:
+  CI gates no single author can bypass (Trivy/checkov/CODEOWNERS/cosign) + a fresh-context AI review layer
+  (reduces single-author blind spots, though **not** DORA-sense independence). **Revisit trigger:** engage
+  an external pentester before any real-production / real-PII claim.
+- **TLPT (TIBER-EU red-team) — CLOSED as N/A (determined, 2026-10-17).** TLPT applies only to entities a
+  competent authority *designates significant*; ktayl is a simulated entity with **no competent authority
+  to designate it**, so TLPT is not applicable (not a proportionality exemption — simply no real regulator).
   **Revisit trigger:** a real entity designation.
 
 ## 7. Known gotcha captured (so it can't silently recur)
