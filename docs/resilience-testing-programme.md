@@ -63,7 +63,12 @@ paper"). Proven twice: the 2026-08 pentest (re-verified live 2026-10-16) and the
 
 ## 7. Known gotcha captured (so it can't silently recur)
 **`archive_timeout` does NOT guarantee a restorable CNPG backup for a low-write DB** (tested 2026-10-17:
-plain backup still unrestorable after a 6-min wait). A **periodic `pg_switch_wal` is a required DR control**
-(reliable design: exec as `postgres` via a scoped CronJob — app-role TCP is unreliable due to CNPG
-managed-role password drift). **Action: WAL-switch CronJob per low-write cluster — pending (gitops).**
-Detective backstop: the quarterly DR drill (§3).
+plain backup still unrestorable after a 6-min wait). **Durable control — LIVE ✅:** a **WAL-keepalive
+CronJob** per low-write cluster writes a heartbeat row every 10 min **as the app role** → continuous WAL →
+`archive_timeout` flushes the base-backup's closing segment → backups stay restorable. Validated: a
+keepalive-only backup restored in 68s. This is the **least-privilege** fix — `pg_switch_wal` is
+superuser-only, but a plain app-role `INSERT` is not, so a keepalive write is preferred over a privileged
+switch. **Deployed + verified: gitops #1849** (CronJobs running on iam/ktayl/retrieva; manual run succeeded).
+*Correction: an earlier hypothesis blamed "managed-role password drift" — that was a misdiagnosis; the real
+cause was a role-name mismatch (`ktayl_iam` vs `ktayl-iam`). App-role TCP works.* Detective backstop: the
+quarterly DR drill (§3).
