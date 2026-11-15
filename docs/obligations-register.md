@@ -86,6 +86,15 @@ A single **AI Underwriting Assistant** simultaneously triggers **AI Act + GDPR +
 IDD + Sanctions/AML + Outsourcing**. The design artefact must list **all** of them and the **combined**
 control set — see the worked example in the [underwriting FDE playbook §12](https://github.com/andrelair-platform/ktayl-underwriting/blob/main/docs/fde-underwriting-playbook.md).
 
+### Registered AI use cases (system cards live with each product — this register points to them)
+Per the AI-Act gate, each AI system carries its **classification + controls** in its own product docs; the
+register links them (don't restate — the Maintenance rule below):
+
+| AI system | AI-Act tier | Frameworks triggered | Card (product docs) |
+|---|---|---|---|
+| AI Underwriting Assistant (#12) | limited (per playbook) | AI-Act · GDPR · DORA · SII · IDD · AML | underwriting FDE playbook §12 |
+| **DMS document classifier (#24)** | **limited-risk, HITL-assisted** | **AI-Act · GDPR (Art. 5 minimisation / Art. 32 security — Presidio masks PII before the LLM)** | [spec-dms-classifier §5 + threat model](https://github.com/andrelair-platform/ktayl-dms/blob/main/docs/specs/spec-dms-classifier/SPEC.md) |
+
 ## Maintenance
 
 - **This is the single source** — the delivery method (`bmad-compliance.md` *The regulatory layer*)
